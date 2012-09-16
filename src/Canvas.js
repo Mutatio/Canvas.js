@@ -126,7 +126,7 @@
 			passes = !passes || !Type.isInteger(passes) ? 1 : passes;
 			this.context.globalAlpha = 0.125;
 
-			for (var i = 0; i < passes; i++) {
+			while (passes--) {
 				for (var x = -1; x < 2; x++) {
 					for (var y = -1; y < 2; y++) {
 						this.context.drawImage(this.element, x, y);
@@ -146,9 +146,9 @@
 	Canvas.prototype.noise = function (passes, decay) {
 		if (this.isSet()) {
 			passes = !passes || !Type.isInteger(passes) ? 1 : passes;
-			decay = !decay || !Type.isNumber(decay) ? 0.025 : decay;
+			decay = !decay || !Type.isNumber(decay) ? 0.05 : decay;
 
-			for (var i = 0; i < passes; i++) {
+			while (passes--) {
 				this.filter(mutate, decay);
 			}
 		}
