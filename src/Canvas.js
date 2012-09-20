@@ -118,6 +118,35 @@
 	};
 
 	/**
+	 * Apply filter to canvas using RGB prototype functions
+	 * @param {Function|String} func
+	 * @param {Array} args
+	 */
+	Canvas.prototype.filterUsingRGBA = function (func, args) {
+		if (this.isSet()) {
+			if (Type.isFunction(RGBA.prototype[func])) {
+				var len = this.length;
+				var px, color;
+
+				while (--len) {
+					px = 4 * len;
+					color = new RGBA(this.data[px], this.data[px + 1], this.data[px + 2], this.data[px + 3] / 255);
+
+					// Call prototype method
+					color[func].apply(color, [args]);
+
+					this.data[px] = color.red;
+					this.data[px + 1] = color.green;
+					this.data[px + 2] = color.blue;
+					this.data[px + 3] = Math.round(color.alpha * 255);
+				}
+
+				this.context.putImageData(this.content, 0, 0);
+			}
+		}
+	};
+
+	/**
 	 * Blur canvas contents
 	 * @param {Number} passes
 	 */
@@ -149,7 +178,7 @@
 			decay = !decay || !Type.isNumber(decay) ? 0.05 : decay;
 
 			while (passes--) {
-				this.filter(mutate, decay);
+				this.filterUsingRGBA('mutate', decay);
 			}
 		}
 	};
