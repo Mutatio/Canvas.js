@@ -168,6 +168,62 @@
 	};
 
 	/**
+	 * Get the canvas colors and frequency
+	 * @param {Boolean} useHex If true, use solid Hex colors
+	 * @param {Number} minimum The magnitude at which pixels can decay away from their origin
+	 * @returns {Object<String, Number>}
+	 */
+	Canvas.prototype.getColors = function (useHex, minimum) {
+		if (this.isSet()) {
+			var len = this.length;
+			var out = {};
+			var px, getColor;
+
+			if (useHex !== true) {
+				getColor = function (red, green, blue, alpha) {
+					return new RGBA(red, green, blue, alpha);
+				};
+
+
+			} else {
+				getColor = function (red, green, blue, alpha) {
+					return new RGBA(red, green, blue, alpha).toHex();
+				};
+			}
+
+			var push = function (red, green, blue, alpha) {
+				var color = getColor(red, green, blue, alpha);
+				var id = color.toString();
+
+				if (!out.hasOwnProperty(id)) {
+					out[id] = 1;
+				} else {
+					out[id] += 1;
+				}
+			};
+
+			while (--len) {
+				px = 4 * len;
+
+				// Push to output
+				push(this.data[px], this.data[px + 1], this.data[px + 2], this.data[px + 3] / 255);
+			}
+
+			if (minimum !== undefined && Type.isInteger(minimum) && minimum > 0) {
+				for (var color in out) {
+					if (out.hasOwnProperty(color) && out[color] < minimum) {
+						delete out[color];
+					}
+				}
+			}
+
+			return out;
+		}
+
+		return null;
+	};
+
+	/**
 	 * Add noise by mutating pixels
 	 * @param {Number} passes
 	 * @param {Number} decay The magnitude at which pixels can decay away from their origin
